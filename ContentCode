@@ -1,0 +1,2471 @@
+//
+//  ContentView.swift
+//  AAC
+//
+//  Created by Pheonix Clark on 3/6/24.
+//
+import Foundation
+import SwiftUI
+import AVFoundation
+
+
+struct ContentView: View {
+    
+    @State var synth = AVSpeechSynthesizer()
+    @State var message: String = ""
+    @State var rate1: Float = 1
+    @State var pitch1: Float = 0
+    @State var voiceIndex = 0
+    
+    @State private var submittedTexts: [String] = []
+    
+    @State var Expand = false
+    @State var Settings = false
+    
+    @State var Verbs = false
+    @State var Pronouns = false
+    @State var Nouns = false
+    @State var Adj = false
+    
+    @State var History1 = false
+    
+    @State var Social = false
+    @State var MyTopics = false
+    @State var Adverbs = false
+    @State var LittleWords = false
+    
+    @State var PausePlay = true
+    
+    @State private var ExpandedSize: CGFloat = 20
+    
+    @State private var CurrentlySpeaking = false
+    
+    func falseFolders() { LittleWords = false; Pronouns = false; Nouns = false; Verbs = false; Adj = false; Social = false; MyTopics = false; Adverbs = false; Settings = false; History1 = false; Expand = false}
+    
+    
+    func dismissKeyboard(){
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        
+
+    
+    }
+    
+    var body: some View {
+        
+     
+        let DarkGray = Color(hue: 0.1, saturation: 0.0, brightness: 0.45)
+        let LightGray = Color(hue: 0.1, saturation: 0.0, brightness: 0.77)
+        let Tile = Rectangle()
+            .foregroundStyle(LightGray)
+            .frame(width: 87, height: 75)
+            .cornerRadius(5)
+            .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)
+        
+        let Voices: [AVSpeechSynthesisVoice] = AVSpeechSynthesisVoice.speechVoices()
+         
+        
+        ZStack{
+            VStack{
+    //message window row starts
+                ZStack{
+                    Rectangle ()
+                        .foregroundStyle(DarkGray)
+                        .frame(height: 155)
+    
+                    HStack{
+                        Spacer()
+                            .frame(width:15)
+                        
+    //Left message window
+                        VStack{
+                            Spacer()
+                                .frame(height: 5)
+                    //settings
+                            ZStack{
+                                Rectangle()
+                                    .foregroundStyle(Color.black)
+                                    .frame(width: 50, height: 42)
+                                    .cornerRadius(5)
+                                    .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                Image(.settings1)
+                                    .resizable()
+                                    .frame(width: 50, height: 44)
+                                    .onTapGesture(perform: {
+                                        dismissKeyboard(); falseFolders(); Settings.toggle()
+                                    })
+                            }
+                            Spacer()
+                                .frame(height: 5)
+                    // create
+                            ZStack{
+                                Rectangle()
+                                    .foregroundStyle(Color.black)
+                                    .frame(width: 50, height: 42)
+                                    .cornerRadius(5)
+                                    .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                Image(.create)
+                                    .resizable()
+                                    .frame(width: 50, height: 44)
+                            }
+                            Spacer()
+                                .frame(height: 5)
+                    // expand
+                            ZStack{
+                                Rectangle ()
+                                    .foregroundStyle(Color.black)
+                                    .frame(width: 65, height: 42)
+                                    .cornerRadius(5)
+                                    .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                Image(.expand)
+                                    .resizable()
+                                    .frame(width: 50, height: 44)
+                                    .onTapGesture(perform: {
+                                        dismissKeyboard(); falseFolders(); Expand.toggle()
+                                    })
+                            }
+                            Spacer()
+                                .frame(height: 5)
+                        }
+                       
+                        
+    //message window
+                        
+                        TextField(
+                            "Message Window...", text: $message, axis: .vertical
+                        )
+                        .textInputAutocapitalization(.sentences)
+                        .frame(alignment: .top)
+                        .autocorrectionDisabled(false)
+                        .font(.system(size: 18))
+                        .fontWeight(.medium)
+                        .padding(.init(top: 10, leading: 15, bottom: 10, trailing: 15))
+                        .lineLimit(5...5)
+                        .background(Color.white)
+                        .onTapGesture(perform: {falseFolders()})
+                        .submitLabel(.done)
+                        .onAppear{
+                            
+                        }
+                        .onSubmit {
+                            submittedTexts.append(message)
+                            AVSpeechUtterance(string: message).voice = AVSpeechSynthesisVoice.speechVoices()[voiceIndex]
+                            AVSpeechUtterance(string: message).rate = rate1
+                            AVSpeechUtterance(string: message).pitchMultiplier = pitch1
+                            synth.speak(AVSpeechUtterance(string: message))
+                            
+                        }
+                        
+    //Right message window
+                        VStack{
+                        
+                            HStack{
+                        //Clear
+                                ZStack{
+                                    Rectangle()
+                                        .foregroundStyle(Color.black)
+                                        .frame(width:65, height: 50)
+                                        .cornerRadius(5)
+                                        .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                    Image(.clear)
+                                        .resizable()
+                                        .frame(width: 60, height: 40)
+                                        .onTapGesture(perform: { message = ""})
+                                }
+                                Spacer()
+                                    .frame(width: 15)
+                       //Search
+                                ZStack{
+                                    Rectangle()
+                                        .foregroundStyle(Color.black)
+                                        .frame(width: 65, height: 50)
+                                        .cornerRadius(5)
+                                        .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                    Image(.search)
+                                        .resizable()
+                                    .frame(width: 49, height: 50)}
+                                    }
+                            
+                            HStack{
+                      //undo
+                                ZStack{
+                                    Rectangle()
+                                        .foregroundStyle(Color.black)
+                                        .frame(width: 48, height: 48)
+                                        .cornerRadius(5)
+                                        .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                    //undo
+                                    Image(.undo)
+                                        .resizable()
+                                        .frame(width: 50, height: 50)
+                                }
+                                Spacer()
+                                    .frame(width: 10)
+                    //play/pause
+                                ZStack{
+                                    Rectangle()
+                                        .foregroundStyle(Color.black)
+                                        .frame(width: 48, height: 48)
+                                        .cornerRadius(5)
+                                        .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                    
+                                    if PausePlay {
+                                        Image(.play)
+                                            .resizable()
+                                            .frame(width: 45, height: 45)
+                                            .onTapGesture(perform: {
+                                                PausePlay = false;
+                                                    submittedTexts.append(message)
+                                                    synth.speak(AVSpeechUtterance(string: message))
+                                                    AVSpeechUtterance(string: message).rate = rate1
+                                                    AVSpeechUtterance(string: message).pitchMultiplier = pitch1
+                                            })
+                                        Image(.pause)
+                                            .resizable()
+                                            .frame(width: 45, height: 45)
+                                            .hidden()
+                                            
+                                    }
+                                    if PausePlay == false {
+                                        Image(.play)
+                                            .resizable()
+                                            .frame(width: 45, height: 45)
+                                            .hidden()
+                                            
+                                        Image(.pause)
+                                            .resizable()
+                                            .frame(width: 45, height: 45)
+                                            .onTapGesture(perform: {
+                                                PausePlay = true; synth.pauseSpeaking(at: .word
+                                                )
+                                            })
+                                            
+                                    }
+                                }
+                                Spacer()
+                                    .frame(width: 10)
+                    //redo
+                                ZStack{
+                                    Rectangle()
+                                        .foregroundStyle(Color.black)
+                                        .frame(width: 48, height: 48)
+                                        .cornerRadius(5)
+                                        .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                    Image(.redo)
+                                        .resizable()
+                                        .frame(width: 50, height: 50)
+                                }
+                                    }
+                        }
+                        Spacer()
+                            .frame(width:15)
+                    }
+                }
+                
+                
+    //navigation row starts
+                
+                ZStack{
+                    Rectangle()
+                        .foregroundStyle(LightGray)
+                        .frame(height: 90)
+                    HStack{
+                        let folder = Rectangle()
+                            .foregroundStyle(Color.white)
+                            .frame(width: 76, height: 70)
+                            .cornerRadius(5)
+                            .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)
+                        let FSpace = Spacer()
+                            .frame(width: 15)
+                      
+                           
+                    //Little Words
+                            ZStack{
+                                folder
+                                Image(.littleWords).resizable().frame(width: 70, height: 70).offset(x:0, y:-6)
+                                    .onTapGesture(perform: {dismissKeyboard();falseFolders(); LittleWords = true})
+                                Text("Little Words").offset(x:0, y:23).font(.system(size: 12, weight: .semibold))
+                            }
+                            FSpace
+                    //Pronouns
+                            ZStack{
+                                folder
+                                Image(.pronouns).resizable().frame(width: 50, height: 50).offset(x:0, y:-6)
+                                    .onTapGesture(perform: {dismissKeyboard(); falseFolders(); Pronouns = true})
+                                Text("Pronouns").offset(x:0, y:23).font(.system(size: 12, weight: .semibold))
+                            }
+                            FSpace
+                    //nouns
+                            ZStack{
+                                folder
+                                Image(.nouns).resizable().frame(width: 50, height: 50).offset(x:0, y:-6)
+                                    .onTapGesture(perform: {dismissKeyboard(); falseFolders(); Nouns = true})
+                                Text("Nouns").offset(x:0, y:23).font(.system(size: 12, weight: .semibold))
+                            }
+                            FSpace
+                    //Verbs
+                            ZStack{
+                                folder
+                                Image(.verbs).resizable().frame(width: 40, height: 40).offset(x:0, y:-6)
+                                    .onTapGesture(perform: {dismissKeyboard(); falseFolders(); Verbs = true})
+                                Text("Verbs").offset(x:0, y:23).font(.system(size: 12, weight: .semibold))
+                            }
+                       
+                            Spacer()
+                                .frame(width: 90)
+                      
+                            
+                            
+                    //Pinned
+                            ZStack{
+                                Rectangle()
+                                    .frame(width: 60, height: 65)
+                                    .foregroundStyle(Color.white)
+                                    .cornerRadius(5)
+                                    .shadow(color: Color.black.opacity(1), radius: 2, y: 2)
+                                Image(.pinned)
+                                    .resizable()
+                                    .frame(width: 55, height: 60)
+                                    .onTapGesture(perform: {dismissKeyboard(); falseFolders()})
+                            }
+                            
+                            FSpace
+                    //Store
+                            ZStack{
+                                Rectangle()
+                                    .frame(width: 75, height: 55)
+                                    .foregroundStyle(Color.white)
+                                    .cornerRadius(5)
+                                    .shadow(color: Color.black.opacity(1), radius: 2, y: 2)
+                                Image(.store)
+                                    .resizable()
+                                    .frame(width: 75, height: 50)
+                            }
+                            
+                            FSpace
+                    //history
+                            ZStack{
+                                Rectangle()
+                                    .frame(width: 60, height: 65)
+                                    .foregroundStyle(Color.white)
+                                    .cornerRadius(5)
+                                    .shadow(color: Color.black.opacity(1), radius: 2, y: 2)
+                                Image(.history)
+                                    .resizable()
+                                    .frame(width: 45, height: 50)
+                                    .onTapGesture {
+                                        dismissKeyboard();
+                                        falseFolders(); History1 = true
+                                    }
+                            }
+                           
+                            Spacer()
+                                .frame(width: 90)
+                  
+                            
+                    //Adj
+                            ZStack{
+                                folder
+                                Image(.adj).resizable().frame(width: 45, height: 45).offset(x:0, y:-6)
+                                    .onTapGesture(perform: {dismissKeyboard();falseFolders(); Adj = true})
+                                Text("Adjectives").offset(x:0, y:23).font(.system(size: 12, weight: .semibold))
+                            }
+                    //Social
+                            FSpace
+                            ZStack{
+                                folder
+                                Image(.social).resizable().frame(width: 60, height: 60).offset(x:0, y:-6) .onTapGesture(perform: {dismissKeyboard(); falseFolders(); Social = true})
+                                Text("Social").offset(x:0, y:23).font(.system(size: 12, weight: .semibold))
+                            }
+                    //MyTopics
+                            FSpace
+                            ZStack{
+                                folder
+                                Image(.myTopics).resizable().frame(width: 45, height: 45).offset(x:0, y:-6)
+                                    .onTapGesture(perform: {dismissKeyboard();falseFolders(); MyTopics = true})
+                                Text("My Topics").offset(x:0, y:23).font(.system(size: 12, weight: .semibold))
+                            }
+                    //adverb
+                            FSpace
+                            ZStack{
+                                folder
+                                Image(.adverb).resizable().frame(width: 60, height: 60).offset(x:0, y:-6)
+                                    .onTapGesture(perform: {dismissKeyboard(); falseFolders(); Settings = false})
+                                Text("Adverbs").offset(x:0, y:23).font(.system(size: 12, weight: .semibold))
+                            }
+                    }
+                }
+                
+                //grammar row starts
+                ZStack{
+                    Rectangle()
+                        .foregroundStyle(Color.white)
+                        .frame(height:25)
+                    
+                    let line =  Rectangle()
+                        .foregroundStyle(Color.black)
+                        .frame(width:1, height: 30)
+                    
+                    let gap = Spacer()
+                    
+                    let divider = HStack {
+                        gap
+                        line
+                    }
+                    
+                    HStack{
+                        ZStack {
+                            HStack{
+                                Image(.not)
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                Text("not")
+                                    .font(.system(size: 15, weight: .semibold))
+                            }
+                            divider
+                        }
+                        ZStack {
+                            HStack{
+                                Image(.plural3PT)
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                Text("plural")
+                                    .font(.system(size: 15, weight: .semibold))
+                            }
+                            divider
+                        }
+                        
+                        ZStack {
+                            HStack{
+                                Image(.pastP)
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                Text("past participle")
+                                    .font(.system(size: 12, weight: .semibold))
+                                
+                            }
+                            divider
+                        }
+                        ZStack {
+                            HStack{
+                                Image(.presentP)
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                Text("present participle")
+                                    .font(.system(size: 12, weight: .semibold))
+                            }
+                            divider
+                        }
+                        ZStack {
+                            HStack{
+                                Image(.possessive)
+                                    .resizable()
+                                    .frame(width: 25, height: 25)
+                                Text("possessive")
+                                    .font(.system(size: 11, weight: .semibold))
+                            }
+                            divider
+                        }
+                        ZStack {
+                            HStack{
+                                Image(.comparative)
+                                    .resizable()
+                                    .frame(width: 26, height: 26)
+                                Text("comparitive")
+                                    .font(.system(size: 11, weight: .semibold))
+                            }
+                            divider
+                        }
+                        ZStack {
+                            HStack{
+                                Image(.plural3PT)
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                Text("3rd person past tense")
+                                    .font(.system(size: 10, weight: .semibold))
+                            }
+                            divider
+                        }
+                        ZStack {
+                            HStack{
+                                Image(.pastT)
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                Text("past      tense")
+                                    .font(.system(size: 12, weight: .semibold))
+                            }
+                            divider
+                        }
+                        ZStack {
+                            HStack{
+                                Image(.root)
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                Text("root")
+                                    .font(.system(size: 15, weight: .semibold))
+                            }
+                            divider
+                        }
+                        ZStack {
+                            HStack{
+                                Image(.next)
+                                    .resizable()
+                                    .frame(width: 60, height: 29)
+                                
+                            }
+                            divider
+                        }
+                        
+                    }
+                }
+                
+                Spacer()
+            }
+    
+            //full screen slash overlapping  pages
+            
+            
+            
+            if Settings{
+        
+                ZStack{
+                    //backround
+                    HStack{
+                        Rectangle()
+                            .foregroundStyle(Color.white)
+                            .frame(width: 500)
+                            .shadow(color: LightGray.opacity(1), radius: 0.5, x: 2)
+                        Spacer()
+                            .frame(width: 700)
+                    }
+                    //content
+                    VStack{
+                       
+                            //Top Row
+                                HStack{
+                                    
+                                    Spacer()
+                                        .frame(width: 50)
+                                    
+                                    ZStack{
+                                        Rectangle()
+                                            .foregroundStyle(Color.black)
+                                            .frame(width: 50, height: 42)
+                                            .cornerRadius(5)
+                                            .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)
+                                        
+                                        Image(.close)
+                                            .resizable()
+                                            .frame(width: 50, height: 44)
+                                            .onTapGesture(perform: {
+                                                Settings.toggle()
+                                            })
+                                    }
+                                    //edit
+                                    ZStack{
+                                        Rectangle()
+                                            .foregroundStyle(Color.black)
+                                            .frame(width: 50, height: 42)
+                                            .cornerRadius(5)
+                                            .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                        
+                                        Image(.edit)
+                                            .resizable()
+                                            .frame(width: 48, height: 40)
+                                            .onTapGesture(perform: {
+                                                Settings.toggle()
+                                            })
+                                        
+                                    }
+                                    
+                                    ZStack{
+                                        Rectangle()
+                                            .foregroundStyle(LightGray)
+                                            .frame(width: 300, height: 42)
+                                            .cornerRadius(5)
+                                            .shadow(color: LightGray.opacity(1), radius: 0.5, y: 2)
+                                        HStack{
+                                            Image(.donate)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 48)
+                                                .onTapGesture(perform: {
+                                                    Settings.toggle()
+                                                        
+                                                })
+                                            Text("Donate")
+                                                .font(.system(size: 24))
+                                        }
+                                        
+                                    }
+                                    
+                                    Spacer()
+                                }
+                        
+                        HStack{
+                            Spacer()
+                                .frame(width:50)
+                        //settings
+                            List {
+                           
+                                Section{
+                                    HStack{
+                                        Image(.voice)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Picker(selection: $voiceIndex, label: Text("Voices")) {
+                                            ForEach (0..<Voices.count, id: \.self) { index in
+                                                Text(Voices[index].name)
+                                            }
+                                        }
+                                    }
+                                    HStack{
+                                        Image(.rate)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Rate")
+                                        Slider(value: $rate1, in: 0.5...2, step: 0.1)
+                                    }
+                                    HStack{
+                                        Image(.pitch)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Pitch")
+                                        Slider(value: $pitch1, in: 0.5 ... 2, step: 0.1)
+                                    }
+                                }
+                                .listRowBackground(LightGray)
+                                .listRowSeparatorTint(DarkGray)
+                                
+                                Section{
+                                    HStack{
+                                        Image(.font)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Font")}
+                                    HStack{
+                                        Image(.fontSize)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Font Size")}
+                                    HStack{
+                                        Image(.fontWeight)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Font Weight")}
+                                }
+                                .listRowBackground(LightGray)
+                                .listRowSeparatorTint(DarkGray)
+                                
+                                Section{
+                                    HStack{
+                                        Image(.speakOnSelect)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Speak on Select")}
+                                    HStack{
+                                        Image(.speakAsType)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Speak as you Type")}
+                                    HStack{
+                                        Image(.highlightAsSpoken)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Highlight Text as Spoken")}
+                                    HStack{
+                                        Image(.autoClear)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Auto Clear Message Window")}
+                                }
+                                .listRowBackground(LightGray)
+                                .listRowSeparatorTint(DarkGray)
+                            
+                                Section{
+                                    HStack{
+                                        Image(.colorTheme)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Color Theme")}
+                                    HStack{
+                                        Image(.boards)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Board Set")}
+                                    HStack{
+                                        Image(.import)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Import")}
+                                }
+                                .listRowBackground(LightGray)
+                                .listRowSeparatorTint(DarkGray)
+                                
+                                Section{
+                                    HStack{
+                                        Image(.tips)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Tips & How-To")}
+                                    HStack{
+                                        Image(.findOnSocialMedia)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Find us on Social Media")}
+                                    HStack{
+                                        Image(.contact)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Contact")}
+                                    HStack{
+                                        Image(.voice)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 40)
+                                        Text("Refrances")}
+                                }
+                                .listRowBackground(LightGray)
+                                .listRowSeparatorTint(DarkGray)
+                              
+                            }
+                            .scrollContentBackground(.hidden)
+                            
+                            Spacer()
+                                .frame(width: 725)
+                            
+                        }
+                        
+                            }
+                        }
+                }
+            
+            if Expand{
+                ZStack{
+                    Rectangle()
+                        .foregroundStyle(DarkGray)
+                    VStack{
+                        HStack{
+                            VStack{
+                                Spacer()
+                                    .frame(height: 10)
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 25)
+                                    ZStack{
+                                        Rectangle()
+                                            .frame(width: 75, height: 55)
+                                            .foregroundStyle(Color.white)
+                                            .cornerRadius(5)
+                                            .shadow(color: Color.black.opacity(1), radius: 2, y: 2)
+                                            .onTapGesture {
+                                                Expand.toggle()
+                                            }
+                                        Image(.back)
+                                            .resizable()
+                                            .frame(width: 60,height: 50)
+                                            .onTapGesture {
+                                                Expand.toggle()
+                                            }
+                                    }
+                                    Spacer()
+                                    
+                                    ZStack{
+                                        Rectangle()
+                                            .frame(width: 975, height: 55)
+                                            .foregroundStyle(Color.white)
+                                            .cornerRadius(5)
+                                            .shadow(color: Color.black.opacity(1), radius: 2, y: 2)
+                                        Slider(value: $ExpandedSize, in: 15...300, step: 5)
+                                            .tint(Color.white)
+                                            .frame(width: 950, height: 10)
+                                            .colorInvert()
+                                    }
+                                    Spacer ()
+                                        .frame(width: 25)
+                                }
+                                Spacer()
+                                    .frame(height:10)
+                            }
+                        }
+                        
+                        ZStack{
+                            Rectangle()
+                                .frame(width: 1090, height: 600)
+                                .foregroundStyle(Color.white)
+                            VStack{
+                                Spacer()
+                                    .frame(height:25)
+                                Text("\(message)")
+                                    .font(.system(size: ExpandedSize))
+                                    .frame(width: 1090)
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+      //  Boards
+                        if History1 {
+                            
+                            
+                            VStack {
+                                
+                                ForEach((0..<submittedTexts.count).reversed(), id: \.self) { index in
+                                    let Submittedtext = submittedTexts[index]
+                                    
+                                        Button(action: {
+                                            message += Submittedtext
+                                    
+                                        }) {
+                                              
+                                                Text(Submittedtext)
+                                                    .frame(width: 700)
+                                                    .padding(.init(top: 10, leading: 15, bottom: 10, trailing: 15))
+                                                    .background(LightGray)
+                                                    .foregroundColor(.black)
+                                                    .cornerRadius(5)
+                                                    .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)
+                                                    .frame(width: 700)
+                                            
+                                        }
+                                        .frame(width: 700)
+                                        
+                                    
+                                }
+                                Spacer()
+                            }
+                            
+                        }
+        
+                        if LittleWords{
+                                    
+                                    VStack{
+                                        
+                                        HStack{
+                                            ZStack{
+                                                Rectangle()
+                                                .frame(width: 150, height: 50)
+                                                .foregroundStyle(LightGray)
+                                                .cornerRadius(5)
+                                                .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                            Spacer()
+                                                .frame(width: 17)
+                                            ZStack{Rectangle()
+                                                    .frame(width: 250, height: 50)
+                                                    .foregroundStyle(LightGray)
+                                                    .cornerRadius(5)
+                                                .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                            Spacer()
+                                                .frame(width: 17)
+                                            ZStack{Rectangle()
+                                                    .frame(width: 250, height: 50)
+                                                    .foregroundStyle(LightGray)
+                                                    .cornerRadius(5)
+                                                .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                            Spacer()
+                                                .frame(width: 17)
+                                            ZStack{Rectangle()
+                                                    .frame(width: 250, height: 50)
+                                                    .foregroundStyle(LightGray)
+                                                    .cornerRadius(5)
+                                                .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                            Spacer()
+                                                .frame(width: 17)
+                                            ZStack{Rectangle()
+                                                    .frame(width: 150, height: 50)
+                                                    .foregroundStyle(LightGray)
+                                                    .cornerRadius(5)
+                                                .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                        }
+                                        Spacer()
+                                            .frame(height: 10)
+                                        //qwe
+                                        HStack{
+                                            Spacer()
+                                                .frame(width: 9)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                            
+                                        }
+                                        Spacer()
+                                            .frame(height: 10)
+                                        
+                                        
+                                        //asd
+                                        HStack{
+                                            Spacer()
+                                                .frame(width: 50)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 16)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 50)
+                                            ZStack{Tile }
+                                            Spacer()
+                                        }
+                                        Spacer()
+                                            .frame(height: 10)
+                                        
+                                        //Shift/zxc
+                                        HStack{
+                                            Spacer()
+                                                .frame(width: 9)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 14)
+                                            
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 30)
+                                            ZStack{Tile }
+                                            Spacer()
+                                        }
+                                        Spacer()
+                                            .frame(height: 10)
+                                        //world
+                                        HStack{
+                                            Spacer()
+                                                .frame(width: 8)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 13)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 13)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 15)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 20)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 20)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 20)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 20)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 40)
+                                            ZStack{Tile }
+                                            Spacer()
+                                                .frame(width: 60)
+                                            ZStack{Tile }
+                                            Spacer()
+                                            
+                                        }
+                                        Spacer()
+                                            .frame(height: 10)
+                                    }
+                                }
+                           
+                        if Pronouns{
+                            //folders
+                            VStack{
+                                
+                                HStack{
+                                    ZStack{
+                                        Rectangle()
+                                        .frame(width: 150, height: 50)
+                                        .foregroundStyle(LightGray)
+                                        .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 150, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //qwe
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                
+                                //asd
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                //Shift/zxc
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 30)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //world
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 8)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 15)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 40)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 60)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                            }
+                        }
+                          
+                        if Nouns{
+                            VStack{
+                                
+                                HStack{
+                                    ZStack{
+                                        Rectangle()
+                                        .frame(width: 150, height: 50)
+                                        .foregroundStyle(LightGray)
+                                        .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 150, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //qwe
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                
+                                //asd
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                //Shift/zxc
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 30)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //world
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 8)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 15)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 40)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 60)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                            }
+                        }
+                           
+                        if Verbs{
+                            //folders
+                            VStack{
+                                
+                                HStack{
+                                    ZStack{
+                                        Rectangle()
+                                        .frame(width: 150, height: 50)
+                                        .foregroundStyle(LightGray)
+                                        .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 150, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //qwe
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                
+                                //asd
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                //Shift/zxc
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 30)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //world
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 8)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 15)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 40)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 60)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                            }
+                        }
+                           
+                        if Adj{
+                            //folders
+                            VStack{
+                                
+                                HStack{
+                                    ZStack{
+                                        Rectangle()
+                                        .frame(width: 150, height: 50)
+                                        .foregroundStyle(LightGray)
+                                        .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 150, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //qwe
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                
+                                //asd
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                //Shift/zxc
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 30)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //world
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 8)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 15)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 40)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 60)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                            }
+                        }
+                           
+                        if Social{
+                            //folders
+                            VStack{
+                                
+                                HStack{
+                                    ZStack{
+                                        Rectangle()
+                                        .frame(width: 150, height: 50)
+                                        .foregroundStyle(LightGray)
+                                        .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 150, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //qwe
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                
+                                //asd
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                //Shift/zxc
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 30)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //world
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 8)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 15)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 40)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 60)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                            }
+                        }
+                         
+                        if MyTopics{
+                            //folders
+                            VStack{
+                                
+                                HStack{
+                                    ZStack{
+                                        Rectangle()
+                                        .frame(width: 150, height: 50)
+                                        .foregroundStyle(LightGray)
+                                        .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 150, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //qwe
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                
+                                //asd
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                //Shift/zxc
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 30)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //world
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 8)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 15)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 40)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 60)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                            }
+                        }
+                           
+                        if Adverbs{
+                            //folders
+                            VStack{
+                                
+                                HStack{
+                                    ZStack{
+                                        Rectangle()
+                                        .frame(width: 150, height: 50)
+                                        .foregroundStyle(LightGray)
+                                        .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 250, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                    Spacer()
+                                        .frame(width: 17)
+                                    ZStack{Rectangle()
+                                            .frame(width: 150, height: 50)
+                                            .foregroundStyle(LightGray)
+                                            .cornerRadius(5)
+                                        .shadow(color: DarkGray.opacity(1), radius: 0.5, y: 2)}
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //qwe
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                
+                                //asd
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 16)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 50)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                
+                                //Shift/zxc
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 9)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 14)
+                                    
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 30)
+                                    ZStack{Tile }
+                                    Spacer()
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                                //world
+                                HStack{
+                                    Spacer()
+                                        .frame(width: 8)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 13)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 15)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 20)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 40)
+                                    ZStack{Tile }
+                                    Spacer()
+                                        .frame(width: 60)
+                                    ZStack{Tile }
+                                    Spacer()
+                                    
+                                }
+                                Spacer()
+                                    .frame(height: 10)
+                            }
+                        }
+            
+        }
+    }
+
+
+#Preview {
+    ContentView()
+}
